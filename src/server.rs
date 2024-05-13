@@ -46,6 +46,7 @@ pub async fn build() -> std::io::Result<()> {
 #[cfg(test)]
 mod tests {
     use actix_web::{App, http::header::ContentType, test};
+    use serde_json::json;
 
     use super::*;
 
@@ -71,5 +72,14 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         println!("Response: {resp:?}");
         assert!(resp.status().is_success());
+
+        let result: serde_json::Value = test::read_body_json(resp).await;
+        println!("Json: {result:?}");
+
+        let expected = Info {
+            app_name: String::from("actix-1"),
+            status: String::from("up"),
+        };
+        assert_eq!(result, json!(expected));
     }
 }
